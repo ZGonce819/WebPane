@@ -24,7 +24,7 @@ A lightweight browser plugin for JetBrains IDEs. Browse the web, test front-end 
 
 ### Manual Installation
 
-1. Download `webpane-1.0.0.zip` from [Releases](https://github.com/ApolleoOnce/WebPane/releases)
+1. Download `webpane-1.0.0.zip` from [Releases](https://github.com/ZGonce819/WebPane/releases)
 2. Go to **Settings → Plugins → ️ → Install Plugin from Disk...**
 3. Select the downloaded ZIP file
 4. Restart the IDE
@@ -60,7 +60,7 @@ Click **Tools → F12** to toggle the developer tools panel at the bottom of the
 ### Steps
 
 ```bash
-git clone https://github.com/ApolleoOnce/WebPane.git
+git clone https://github.com/ZGonce819/WebPane.git
 cd WebPane
 ```
 
