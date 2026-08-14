@@ -18,6 +18,8 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
 
     private static JBCefBrowser devToolsBrowser;
     private static Content devToolsContent;
+    private static boolean nativeDevToolsOpen = false;
+    private static CefBrowser nativeDevToolsBrowser;
 
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
@@ -26,95 +28,64 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
     public static void openDevTools(Project project, CefBrowser cefBrowser) {
         if (cefBrowser == null) return;
 
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
-        if (toolWindow == null) return;
-
-        closeDevTools(project);
-
         ApplicationManager.getApplication().invokeLater(() -> {
-            CefBrowser devToolsCef = null;
-
-            // Try multiple approaches for different JCEF versions
-            // Approach 1: CefBrowser.getDevTools() (older API)
-            if (devToolsCef == null) {
-                try {
-                    java.lang.reflect.Method method = CefBrowser.class.getMethod("getDevTools");
-                    devToolsCef = (CefBrowser) method.invoke(cefBrowser);
-                } catch (Exception ignored) {}
-            }
-
-            // Approach 2: Try JBCefBrowser wrapper methods via reflection
-            if (devToolsCef == null) {
-                try {
-                    // Find the JBCefBrowser that wraps this CefBrowser
-                    java.lang.reflect.Method getDevTools = cefBrowser.getClass().getMethod("getDevTools");
-                    devToolsCef = (CefBrowser) getDevTools.invoke(cefBrowser);
-                } catch (Exception ignored) {}
-            }
-
-            // Approach 3: Try showDevTools() which opens DevTools in a separate window
-            if (devToolsCef == null) {
-                try {
-                    java.lang.reflect.Method showDevTools = CefBrowser.class.getMethod("showDevTools");
-                    showDevTools.invoke(cefBrowser);
-                    Messages.showInfoMessage("DevTools opened in a separate window", "Info");
-                    return;
-                } catch (Exception ignored) {}
-            }
-
-            // Approach 4: Try with CefClient parameter (some versions require it)
-            if (devToolsCef == null) {
-                try {
-                    java.lang.reflect.Method[] methods = CefBrowser.class.getMethods();
-                    for (java.lang.reflect.Method m : methods) {
-                        if (m.getName().equals("getDevTools") && m.getParameterCount() == 0) {
-                            devToolsCef = (CefBrowser) m.invoke(cefBrowser);
-                            break;
-                        }
-                    }
-                } catch (Exception ignored) {}
-            }
-
-            if (devToolsCef == null) {
-                // List available methods for debugging
-                StringBuilder methods = new StringBuilder();
-                for (java.lang.reflect.Method m : CefBrowser.class.getMethods()) {
-                    if (m.getName().toLowerCase().contains("dev")) {
-                        methods.append(m.getName()).append("(");
-                        for (Class<?> p : m.getParameterTypes()) {
-                            methods.append(p.getSimpleName()).append(",");
-                        }
-                        methods.append(") ");
-                    }
-                }
-                Messages.showInfoMessage("DevTools API not found. Available dev methods: " + methods.toString(), "Info");
+            // Approach 1: openDevTools() - opens DevTools in a native CEF window (newer JCEF versions)
+            try {
+                java.lang.reflect.Method method = CefBrowser.class.getMethod("openDevTools");
+                method.invoke(cefBrowser);
+                nativeDevToolsOpen = true;
+                nativeDevToolsBrowser = cefBrowser;
+                return;
+            } catch (NoSuchMethodException ignored) {
+                // Method doesn't exist in this JCEF version, try fallback
+            } catch (Exception ex) {
+                Messages.showInfoMessage("Failed to open DevTools: " + ex.getMessage(), "Error");
                 return;
             }
 
+            // Approach 2: getDevTools() - embeds DevTools in a panel (older JCEF versions)
             try {
-                Component devToolsComponent = devToolsCef.getUIComponent();
-                if (devToolsComponent != null) {
-                    JPanel panel = new JPanel(new BorderLayout());
-                    panel.add(devToolsComponent, BorderLayout.CENTER);
+                java.lang.reflect.Method method = CefBrowser.class.getMethod("getDevTools");
+                CefBrowser devToolsCef = (CefBrowser) method.invoke(cefBrowser);
+                if (devToolsCef != null) {
+                    Component devToolsComponent = devToolsCef.getUIComponent();
+                    if (devToolsComponent != null) {
+                        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
+                        if (toolWindow != null) {
+                            JPanel panel = new JPanel(new BorderLayout());
+                            panel.add(devToolsComponent, BorderLayout.CENTER);
 
-                    ContentFactory factory = ApplicationManager.getApplication().getService(ContentFactory.class);
-                    devToolsContent = factory.createContent(panel, "DevTools", false);
+                            ContentFactory factory = ApplicationManager.getApplication().getService(ContentFactory.class);
+                            devToolsContent = factory.createContent(panel, "DevTools", false);
 
-                    com.intellij.ui.content.ContentManager contentManager = toolWindow.getContentManager();
-                    contentManager.addContent(devToolsContent);
-                    toolWindow.show(() -> contentManager.setSelectedContent(devToolsContent));
-                } else {
-                    Messages.showInfoMessage("Failed to get DevTools UI component", "Info");
+                            com.intellij.ui.content.ContentManager contentManager = toolWindow.getContentManager();
+                            contentManager.addContent(devToolsContent);
+                            toolWindow.show(() -> contentManager.setSelectedContent(devToolsContent));
+                        }
+                    }
                 }
             } catch (Exception ex) {
-                Messages.showInfoMessage("Failed to open DevTools: " + ex.getMessage(), "Info");
+                Messages.showInfoMessage("DevTools is not supported in this IDE version", "Info");
             }
         });
     }
 
     public static void closeDevTools(Project project) {
-        if (devToolsContent != null) {
-            ApplicationManager.getApplication().invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            // Close native DevTools if open
+            if (nativeDevToolsOpen && nativeDevToolsBrowser != null) {
+                try {
+                    java.lang.reflect.Method method = CefBrowser.class.getMethod("closeDevTools");
+                    method.invoke(nativeDevToolsBrowser);
+                } catch (Exception ignored) {
+                    // Method might not exist in older JCEF versions
+                }
+                nativeDevToolsOpen = false;
+                nativeDevToolsBrowser = null;
+            }
+
+            // Close embedded DevTools if open
+            if (devToolsContent != null) {
                 try {
                     ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
                     if (toolWindow != null) {
@@ -134,11 +105,15 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
                     }
                     devToolsContent = null;
                 }
-            });
-        }
+            }
+        });
     }
 
     public static boolean isDevToolsOpen(Project project) {
+        // Check native DevTools first
+        if (nativeDevToolsOpen) return true;
+
+        // Check embedded DevTools
         if (devToolsContent == null) return false;
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
         if (toolWindow == null) return false;

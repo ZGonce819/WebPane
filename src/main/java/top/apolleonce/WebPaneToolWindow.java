@@ -89,13 +89,14 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private JPanel createTopToolbar() {
         JPanel toolbar = new JPanel(new BorderLayout());
 
-        backButton = createBackButton();
-        forwardButton = createForwardButton();
-        JButton homeButton = createHomeButton();
-
         urlField = new JTextField(URL_MSG);
         urlField.setForeground(Color.GRAY);
         addPlaceholder();
+
+        int urlFieldHeight = urlField.getPreferredSize().height;
+        backButton = createBackButton(urlFieldHeight);
+        forwardButton = createForwardButton(urlFieldHeight);
+        JButton homeButton = createHomeButton(urlFieldHeight);
 
         JButton moreButton = createMoreDropdownButton();
 
@@ -114,13 +115,13 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         return toolbar;
     }
 
-    private JButton createHomeButton() {
+    private JButton createHomeButton(int height) {
         JButton button = new JButton(AllIcons.Nodes.HomeFolder);
         button.setToolTipText("Home");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(28, 28));
-        button.setMaximumSize(new Dimension(28, 28));
-        button.setMinimumSize(new Dimension(28, 28));
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
         button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             Project project = getFirstProject();
@@ -215,13 +216,13 @@ public class WebPaneToolWindow implements ToolWindowFactory {
 
     // ==================== Menu Items ====================
 
-    private JButton createBackButton() {
+    private JButton createBackButton(int height) {
         JButton button = new JButton(AllIcons.Actions.Back);
         button.setToolTipText("Back");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(28, 28));
-        button.setMaximumSize(new Dimension(28, 28));
-        button.setMinimumSize(new Dimension(28, 28));
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
         button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             if (browser == null) return;
@@ -233,13 +234,13 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         return button;
     }
 
-    private JButton createForwardButton() {
+    private JButton createForwardButton(int height) {
         JButton button = new JButton(AllIcons.Actions.Forward);
         button.setToolTipText("Forward");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(28, 28));
-        button.setMaximumSize(new Dimension(28, 28));
-        button.setMinimumSize(new Dimension(28, 28));
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
         button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             if (browser == null) return;
