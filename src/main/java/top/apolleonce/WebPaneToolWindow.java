@@ -43,8 +43,8 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private JTextField urlField;
     private ContentFactory contentFactory;
     private double zoomFactor = 1.0;
-    private JMenuItem backButton;
-    private JMenuItem forwardButton;
+    private JButton backButton;
+    private JButton forwardButton;
     private JMenuItem devToolsButton;
 
     private static WebPaneToolWindow instance;
@@ -89,6 +89,8 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private JPanel createTopToolbar() {
         JPanel toolbar = new JPanel(new BorderLayout());
 
+        backButton = createBackButton();
+        forwardButton = createForwardButton();
         JButton homeButton = createHomeButton();
 
         urlField = new JTextField(URL_MSG);
@@ -97,7 +99,9 @@ public class WebPaneToolWindow implements ToolWindowFactory {
 
         JButton moreButton = createMoreDropdownButton();
 
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        leftPanel.add(backButton);
+        leftPanel.add(forwardButton);
         leftPanel.add(homeButton);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
@@ -131,12 +135,7 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JPopupMenu popup = new JPopupMenu();
         applyThemeToPopupMenu(popup);
 
-        popup.add(createBackMenuItem());
-        popup.add(createForwardMenuItem());
-        popup.addSeparator();
         popup.add(createDevToolMenuItem());
-        popup.addSeparator();
-        popup.add(createHomeMenuItem());
         popup.addSeparator();
         popup.add(createZoomInMenuItem());
         popup.add(createZoomOutMenuItem());
@@ -180,30 +179,32 @@ public class WebPaneToolWindow implements ToolWindowFactory {
 
     // ==================== Menu Items ====================
 
-    private JMenuItem createBackMenuItem() {
-        backButton = new JMenuItem("Back");
-        backButton.setIcon(AllIcons.Actions.Back);
-        backButton.addActionListener(e -> {
+    private JButton createBackButton() {
+        JButton button = new JButton(AllIcons.Actions.Back);
+        button.setToolTipText("Back");
+        button.setFocusable(false);
+        button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
                 browser.getCefBrowser().goBack();
             }
         });
-        return backButton;
+        return button;
     }
 
-    private JMenuItem createForwardMenuItem() {
-        forwardButton = new JMenuItem("Forward");
-        forwardButton.setIcon(AllIcons.Actions.Forward);
-        forwardButton.addActionListener(e -> {
+    private JButton createForwardButton() {
+        JButton button = new JButton(AllIcons.Actions.Forward);
+        button.setToolTipText("Forward");
+        button.setFocusable(false);
+        button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
                 browser.getCefBrowser().goForward();
             }
         });
-        return forwardButton;
+        return button;
     }
 
     private JMenuItem createDevToolMenuItem() {
@@ -216,18 +217,6 @@ public class WebPaneToolWindow implements ToolWindowFactory {
             }
         });
         return devToolsButton;
-    }
-
-    private JMenuItem createHomeMenuItem() {
-        JMenuItem item = new JMenuItem("Home");
-        item.setIcon(AllIcons.Nodes.HomeFolder);
-        item.addActionListener(e -> {
-            Project project = getFirstProject();
-            if (project != null && checkMemory(project)) {
-                loadWelcomeMessage();
-            }
-        });
-        return item;
     }
 
     private JMenuItem createZoomInMenuItem() {
