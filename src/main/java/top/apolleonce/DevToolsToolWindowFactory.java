@@ -33,19 +33,61 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
 
         ApplicationManager.getApplication().invokeLater(() -> {
             CefBrowser devToolsCef = null;
-            try {
-                java.lang.reflect.Method method = CefBrowser.class.getMethod("getDevTools", new Class[0]);
-                devToolsCef = (CefBrowser) method.invoke(cefBrowser, new Object[0]);
-            } catch (NoSuchMethodException ex) {
-                Messages.showInfoMessage("DevTools is not supported in this IDE version", "Info");
-                return;
-            } catch (Exception ex) {
-                Messages.showInfoMessage("Failed to initialize DevTools: " + ex.getMessage(), "Info");
-                return;
+
+            // Try multiple approaches for different JCEF versions
+            // Approach 1: CefBrowser.getDevTools() (older API)
+            if (devToolsCef == null) {
+                try {
+                    java.lang.reflect.Method method = CefBrowser.class.getMethod("getDevTools");
+                    devToolsCef = (CefBrowser) method.invoke(cefBrowser);
+                } catch (Exception ignored) {}
+            }
+
+            // Approach 2: Try JBCefBrowser wrapper methods via reflection
+            if (devToolsCef == null) {
+                try {
+                    // Find the JBCefBrowser that wraps this CefBrowser
+                    java.lang.reflect.Method getDevTools = cefBrowser.getClass().getMethod("getDevTools");
+                    devToolsCef = (CefBrowser) getDevTools.invoke(cefBrowser);
+                } catch (Exception ignored) {}
+            }
+
+            // Approach 3: Try showDevTools() which opens DevTools in a separate window
+            if (devToolsCef == null) {
+                try {
+                    java.lang.reflect.Method showDevTools = CefBrowser.class.getMethod("showDevTools");
+                    showDevTools.invoke(cefBrowser);
+                    Messages.showInfoMessage("DevTools opened in a separate window", "Info");
+                    return;
+                } catch (Exception ignored) {}
+            }
+
+            // Approach 4: Try with CefClient parameter (some versions require it)
+            if (devToolsCef == null) {
+                try {
+                    java.lang.reflect.Method[] methods = CefBrowser.class.getMethods();
+                    for (java.lang.reflect.Method m : methods) {
+                        if (m.getName().equals("getDevTools") && m.getParameterCount() == 0) {
+                            devToolsCef = (CefBrowser) m.invoke(cefBrowser);
+                            break;
+                        }
+                    }
+                } catch (Exception ignored) {}
             }
 
             if (devToolsCef == null) {
-                Messages.showInfoMessage("Developer tools are not available", "Info");
+                // List available methods for debugging
+                StringBuilder methods = new StringBuilder();
+                for (java.lang.reflect.Method m : CefBrowser.class.getMethods()) {
+                    if (m.getName().toLowerCase().contains("dev")) {
+                        methods.append(m.getName()).append("(");
+                        for (Class<?> p : m.getParameterTypes()) {
+                            methods.append(p.getSimpleName()).append(",");
+                        }
+                        methods.append(") ");
+                    }
+                }
+                Messages.showInfoMessage("DevTools API not found. Available dev methods: " + methods.toString(), "Info");
                 return;
             }
 

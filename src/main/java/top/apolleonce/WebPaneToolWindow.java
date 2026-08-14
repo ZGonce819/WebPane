@@ -118,11 +118,10 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Nodes.HomeFolder);
         button.setToolTipText("Home");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(20, 20));
-        button.setMaximumSize(new Dimension(20, 20));
-        button.setMinimumSize(new Dimension(20, 20));
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setPreferredSize(new Dimension(24, 24));
+        button.setMaximumSize(new Dimension(24, 24));
+        button.setMinimumSize(new Dimension(24, 24));
+        button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
@@ -220,11 +219,10 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Back);
         button.setToolTipText("Back");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(20, 20));
-        button.setMaximumSize(new Dimension(20, 20));
-        button.setMinimumSize(new Dimension(20, 20));
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setPreferredSize(new Dimension(24, 24));
+        button.setMaximumSize(new Dimension(24, 24));
+        button.setMinimumSize(new Dimension(24, 24));
+        button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
@@ -239,11 +237,10 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Forward);
         button.setToolTipText("Forward");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(20, 20));
-        button.setMaximumSize(new Dimension(20, 20));
-        button.setMinimumSize(new Dimension(20, 20));
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setPreferredSize(new Dimension(24, 24));
+        button.setMaximumSize(new Dimension(24, 24));
+        button.setMinimumSize(new Dimension(24, 24));
+        button.setMargin(new Insets(2, 2, 2, 2));
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
