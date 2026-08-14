@@ -43,8 +43,8 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private JTextField urlField;
     private ContentFactory contentFactory;
     private double zoomFactor = 1.0;
-    private JMenuItem backButton;
-    private JMenuItem forwardButton;
+    private JButton backButton;
+    private JButton forwardButton;
     private JMenuItem devToolsButton;
 
     private static WebPaneToolWindow instance;
@@ -93,15 +93,43 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         urlField.setForeground(Color.GRAY);
         addPlaceholder();
 
+        int urlFieldHeight = urlField.getPreferredSize().height;
+        backButton = createBackButton(urlFieldHeight);
+        forwardButton = createForwardButton(urlFieldHeight);
+        JButton homeButton = createHomeButton(urlFieldHeight);
+
         JButton moreButton = createMoreDropdownButton();
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        leftPanel.add(homeButton);
+        leftPanel.add(backButton);
+        leftPanel.add(forwardButton);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         rightPanel.add(moreButton);
 
+        toolbar.add(leftPanel, BorderLayout.WEST);
         toolbar.add(urlField, BorderLayout.CENTER);
         toolbar.add(rightPanel, BorderLayout.EAST);
 
         return toolbar;
+    }
+
+    private JButton createHomeButton(int height) {
+        JButton button = new JButton(AllIcons.Nodes.HomeFolder);
+        button.setToolTipText("Home");
+        button.setFocusable(false);
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
+        button.setMargin(new Insets(2, 2, 2, 2));
+        button.addActionListener(e -> {
+            Project project = getFirstProject();
+            if (project != null && checkMemory(project)) {
+                loadWelcomeMessage();
+            }
+        });
+        return button;
     }
 
     private JButton createMoreDropdownButton() {
@@ -112,12 +140,7 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JPopupMenu popup = new JPopupMenu();
         applyThemeToPopupMenu(popup);
 
-        popup.add(createBackMenuItem());
-        popup.add(createForwardMenuItem());
-        popup.addSeparator();
         popup.add(createDevToolMenuItem());
-        popup.addSeparator();
-        popup.add(createHomeMenuItem());
         popup.addSeparator();
         popup.add(createZoomInMenuItem());
         popup.add(createZoomOutMenuItem());
@@ -132,8 +155,10 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private void applyThemeToPopupMenu(JPopupMenu popup) {
         Color bgColor = UIUtil.getPanelBackground();
         popup.setBackground(bgColor);
-        Border border = JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 1);
-        popup.setBorder(border);
+
+        // Rounded border to match JetBrains IDE menu style
+        Border roundedBorder = new RoundedBorder(8, JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground());
+        popup.setBorder(roundedBorder);
 
         for (Component comp : popup.getComponents()) {
             if (comp instanceof JMenuItem) {
@@ -153,6 +178,36 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         });
     }
 
+    // Rounded border for popup menus
+    private static class RoundedBorder implements Border {
+        private final int radius;
+        private final Color borderColor;
+
+        RoundedBorder(int radius, Color borderColor) {
+            this.radius = radius;
+            this.borderColor = borderColor;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(borderColor);
+            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2.dispose();
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius, radius, radius, radius);
+        }
+
+        @Override
+        public boolean isBorderOpaque() {
+            return false;
+        }
+    }
+
     private void applyThemeToMenuItem(JMenuItem item) {
         item.setBackground(UIUtil.getPanelBackground());
         item.setForeground(UIUtil.getLabelForeground());
@@ -161,30 +216,40 @@ public class WebPaneToolWindow implements ToolWindowFactory {
 
     // ==================== Menu Items ====================
 
-    private JMenuItem createBackMenuItem() {
-        backButton = new JMenuItem("Back");
-        backButton.setIcon(AllIcons.Actions.Back);
-        backButton.addActionListener(e -> {
+    private JButton createBackButton(int height) {
+        JButton button = new JButton(AllIcons.Actions.Back);
+        button.setToolTipText("Back");
+        button.setFocusable(false);
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
+        button.setMargin(new Insets(2, 2, 2, 2));
+        button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
                 browser.getCefBrowser().goBack();
             }
         });
-        return backButton;
+        return button;
     }
 
-    private JMenuItem createForwardMenuItem() {
-        forwardButton = new JMenuItem("Forward");
-        forwardButton.setIcon(AllIcons.Actions.Forward);
-        forwardButton.addActionListener(e -> {
+    private JButton createForwardButton(int height) {
+        JButton button = new JButton(AllIcons.Actions.Forward);
+        button.setToolTipText("Forward");
+        button.setFocusable(false);
+        button.setPreferredSize(new Dimension(30, height));
+        button.setMaximumSize(new Dimension(30, height));
+        button.setMinimumSize(new Dimension(30, height));
+        button.setMargin(new Insets(2, 2, 2, 2));
+        button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
                 browser.getCefBrowser().goForward();
             }
         });
-        return forwardButton;
+        return button;
     }
 
     private JMenuItem createDevToolMenuItem() {
@@ -197,18 +262,6 @@ public class WebPaneToolWindow implements ToolWindowFactory {
             }
         });
         return devToolsButton;
-    }
-
-    private JMenuItem createHomeMenuItem() {
-        JMenuItem item = new JMenuItem("Home");
-        item.setIcon(AllIcons.Nodes.HomeFolder);
-        item.addActionListener(e -> {
-            Project project = getFirstProject();
-            if (project != null && checkMemory(project)) {
-                loadWelcomeMessage();
-            }
-        });
-        return item;
     }
 
     private JMenuItem createZoomInMenuItem() {
