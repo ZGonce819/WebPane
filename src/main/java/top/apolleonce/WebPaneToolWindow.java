@@ -100,9 +100,9 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton moreButton = createMoreDropdownButton();
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        leftPanel.add(homeButton);
         leftPanel.add(backButton);
         leftPanel.add(forwardButton);
-        leftPanel.add(homeButton);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         rightPanel.add(moreButton);
@@ -118,6 +118,7 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Nodes.HomeFolder);
         button.setToolTipText("Home");
         button.setFocusable(false);
+        button.setMargin(new Insets(2, 4, 2, 4));
         button.addActionListener(e -> {
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
@@ -183,6 +184,7 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Back);
         button.setToolTipText("Back");
         button.setFocusable(false);
+        button.setMargin(new Insets(2, 4, 2, 4));
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
@@ -197,6 +199,7 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Forward);
         button.setToolTipText("Forward");
         button.setFocusable(false);
+        button.setMargin(new Insets(2, 4, 2, 4));
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
