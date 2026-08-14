@@ -118,9 +118,11 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Nodes.HomeFolder);
         button.setToolTipText("Home");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(24, 24));
-        button.setMaximumSize(new Dimension(24, 24));
+        button.setPreferredSize(new Dimension(20, 20));
+        button.setMaximumSize(new Dimension(20, 20));
+        button.setMinimumSize(new Dimension(20, 20));
         button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorder(BorderFactory.createEmptyBorder());
         button.addActionListener(e -> {
             Project project = getFirstProject();
             if (project != null && checkMemory(project)) {
@@ -153,8 +155,10 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private void applyThemeToPopupMenu(JPopupMenu popup) {
         Color bgColor = UIUtil.getPanelBackground();
         popup.setBackground(bgColor);
-        Border border = JBUI.Borders.customLine(JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground(), 1);
-        popup.setBorder(border);
+
+        // Rounded border to match JetBrains IDE menu style
+        Border roundedBorder = new RoundedBorder(8, JBUI.CurrentTheme.CustomFrameDecorations.separatorForeground());
+        popup.setBorder(roundedBorder);
 
         for (Component comp : popup.getComponents()) {
             if (comp instanceof JMenuItem) {
@@ -174,6 +178,36 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         });
     }
 
+    // Rounded border for popup menus
+    private static class RoundedBorder implements Border {
+        private final int radius;
+        private final Color borderColor;
+
+        RoundedBorder(int radius, Color borderColor) {
+            this.radius = radius;
+            this.borderColor = borderColor;
+        }
+
+        @Override
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(borderColor);
+            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2.dispose();
+        }
+
+        @Override
+        public Insets getBorderInsets(Component c) {
+            return new Insets(radius, radius, radius, radius);
+        }
+
+        @Override
+        public boolean isBorderOpaque() {
+            return false;
+        }
+    }
+
     private void applyThemeToMenuItem(JMenuItem item) {
         item.setBackground(UIUtil.getPanelBackground());
         item.setForeground(UIUtil.getLabelForeground());
@@ -186,9 +220,11 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Back);
         button.setToolTipText("Back");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(24, 24));
-        button.setMaximumSize(new Dimension(24, 24));
+        button.setPreferredSize(new Dimension(20, 20));
+        button.setMaximumSize(new Dimension(20, 20));
+        button.setMinimumSize(new Dimension(20, 20));
         button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorder(BorderFactory.createEmptyBorder());
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
@@ -203,9 +239,11 @@ public class WebPaneToolWindow implements ToolWindowFactory {
         JButton button = new JButton(AllIcons.Actions.Forward);
         button.setToolTipText("Forward");
         button.setFocusable(false);
-        button.setPreferredSize(new Dimension(24, 24));
-        button.setMaximumSize(new Dimension(24, 24));
+        button.setPreferredSize(new Dimension(20, 20));
+        button.setMaximumSize(new Dimension(20, 20));
+        button.setMinimumSize(new Dimension(20, 20));
         button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorder(BorderFactory.createEmptyBorder());
         button.addActionListener(e -> {
             if (browser == null) return;
             Project project = getFirstProject();
