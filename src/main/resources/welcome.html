@@ -2,57 +2,383 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebPane</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            position: relative;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            background: radial-gradient(circle, #dcdcdc, #8c8c8c);
-            color: rgba(255, 255, 255, 0.8);
-            font-family: 'Noto Serif SC', serif;
-            font-size: 18px;
-            line-height: 1.5;
-            text-align: center;
+            background: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                         "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            color: #1d1d1f;
         }
 
-        .prompt-box {
-            position: relative;
-            max-width: 80%;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background: rgba(0, 0, 0, 0.1);
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            max-width: 560px;
+            width: 90%;
         }
 
-        .memory-tip {
-            margin-top: 30px;
+        /* Logo / Brand */
+        .brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #007aff, #5856d6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+        }
+
+        .brand-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        .brand-name {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1d1d1f;
+        }
+
+        .brand-tagline {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            padding-top: 20px;
+            color: #86868b;
+            text-align: center;
+            line-height: 1.6;
         }
 
-        .memory-tip a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: underline;
+        /* Search Box */
+        .search-wrapper {
+            width: 100%;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            overflow: hidden;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.15);
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+
+        .search-engine-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: transparent;
             cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s;
+            border-radius: 12px 0 0 12px;
         }
 
-        .memory-tip a:hover {
-            color: rgba(255, 255, 255, 1);
+        .search-engine-btn:hover {
+            background: #f0f0f5;
+        }
+
+        .search-engine-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            height: 48px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #1d1d1f;
+            background: transparent;
+            padding: 0 16px 0 0;
+        }
+
+        .search-input::placeholder {
+            color: #aeaeb2;
+        }
+
+        .search-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .search-submit:hover {
+            background: #f0f0f5;
+        }
+
+        .search-submit svg {
+            width: 20px;
+            height: 20px;
+            fill: #007aff;
+        }
+
+        /* Engine Toggle Dropdown */
+        .engine-dropdown {
+            display: none;
+            position: absolute;
+            top: 52px;
+            left: 0;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            z-index: 10;
+            overflow: hidden;
+            min-width: 160px;
+        }
+
+        .engine-dropdown.show {
+            display: block;
+        }
+
+        .engine-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+            color: #1d1d1f;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .engine-option:hover {
+            background: #f0f0f5;
+        }
+
+        .engine-option.active {
+            background: #e8f0fe;
+            color: #007aff;
+        }
+
+        .engine-option svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Tips */
+        .tips {
+            font-size: 12px;
+            color: #aeaeb2;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .tips a {
+            color: #007aff;
+            text-decoration: none;
+        }
+
+        .tips a:hover {
+            text-decoration: underline;
+        }
+
+        /* Keyboard hint */
+        .kbd-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-family: inherit;
+            color: #86868b;
+            background: #e8e8ed;
+            border-radius: 4px;
+            border: 1px solid #d2d2d7;
         }
     </style>
 </head>
 <body>
-<div class="prompt-box">
-    Enter the URL in the input box above and then click [Enter] to start your experience
-    <div class="memory-tip">
-        Tip: The browser uses IDE memory. Please configure IDE memory for optimal performance.<br>
+    <div class="container">
+        <!-- Brand -->
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+            </div>
+            <div class="brand-name">WebPane</div>
+            <div class="brand-tagline">
+                Your integrated browser in IDE<br>
+                IDE 内置浏览器，触手可及
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrapper">
+            <div class="search-box">
+                <button class="search-engine-btn" id="engineToggle" title="Switch search engine">
+                    <!-- Google icon (default) -->
+                    <svg id="engineIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 2.04-1.67 3.55-3.6 4.06v3.37c3.53-.33 6.63-2.39 7.64-5.83h.6z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                </button>
+                <input type="text" class="search-input" id="searchInput"
+                       placeholder="Search with Google / 使用 Google 搜索" autofocus>
+                <button class="search-submit" id="searchBtn" title="Search">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="engine-dropdown" id="engineDropdown">
+                <button class="engine-option active" data-engine="google">
+                    <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 2.04-1.67 3.55-3.6 4.06v3.37c3.53-.33 6.63-2.39 7.64-5.83h.6z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Google
+                </button>
+                <button class="engine-option" data-engine="baidu">
+                    <svg viewBox="0 0 24 24"><path fill="#2932E1" d="M5.42 10.456c1.072 0 1.94.868 1.94 1.94 0 1.072-.868 1.94-1.94 1.94-1.072 0-1.94-.868-1.94-1.94 0-1.072.868-1.94 1.94-1.94zm6.288-.108c1.26 0 2.282 1.02 2.282 2.28 0 1.26-1.022 2.28-2.282 2.28-1.26 0-2.28-1.02-2.28-2.28 0-1.26 1.02-2.28 2.28-2.28zm5.82-1.96c.964 0 1.744.78 1.744 1.744 0 .964-.78 1.744-1.744 1.744-.964 0-1.744-.78-1.744-1.744 0-.964.78-1.744 1.744-1.744zM11.8 3c.548 0 .992.444.992.992 0 .548-.444.992-.992.992-.548 0-.992-.444-.992-.992 0-.548.444-.992.992-.992zM4.46 6.088c.64 0 1.16.52 1.16 1.16 0 .64-.52 1.16-1.16 1.16-.64 0-1.16-.52-1.16-1.16 0-.64.52-1.16 1.16-1.16zm15.08 0c.64 0 1.16.52 1.16 1.16 0 .64-.52 1.16-1.16 1.16-.64 0-1.16-.52-1.16-1.16 0-.64.52-1.16 1.16-1.16z"/><path fill="#2932E1" d="M20.14 8.56c-.76-.16-1.52.2-1.72.88-.08.28-.04.56.08.8.12.24.32.4.56.48.24.08.52.04.76-.08.48-.24.72-.8.56-1.32-.08-.32-.32-.6-.64-.76h.4zm.44-1.12c.28-.04.52-.2.64-.44.12-.24.12-.52 0-.76-.12-.24-.36-.4-.64-.44-.28-.04-.52.08-.68.28-.16.2-.2.48-.08.72.12.32.4.56.76.64h-.01z"/></svg>
+                    Baidu / 百度
+                </button>
+                <button class="engine-option" data-engine="bing">
+                    <svg viewBox="0 0 24 24"><path fill="#00897B" d="M4.52 4.24L10.6 2v6.36L4.52 4.24zm0 0l6.08 4.12V2L4.52 4.24zM10.6 8.36v7.28l6.08-3.64V8.36L10.6 8.36zm6.08 3.64L10.6 15.64V22l6.08-3.64V12z"/></svg>
+                    Bing
+                </button>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips">
+            Enter a URL or search keyword in the box above, then press <kbd>Enter</kbd><br>
+            在上方输入网址或关键词，按 <kbd>Enter</kbd> 开始浏览
+            <div class="kbd-hint" style="margin-top: 12px; font-size: 11px; color: #c7c7cc;">
+                WebPane v1.0.0 &middot; JCEF Browser
+            </div>
+        </div>
     </div>
-</div>
+
+    <script>
+        const engines = {
+            google: {
+                name: 'Google',
+                url: q => 'https://www.google.com/search?q=' + encodeURIComponent(q),
+                placeholder: 'Search with Google / 使用 Google 搜索',
+                icon: '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 2.04-1.67 3.55-3.6 4.06v3.37c3.53-.33 6.63-2.39 7.64-5.83h.6z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>'
+            },
+            baidu: {
+                name: 'Baidu',
+                url: q => 'https://www.baidu.com/s?wd=' + encodeURIComponent(q),
+                placeholder: 'Search with Baidu / 使用百度搜索',
+                icon: '<svg viewBox="0 0 24 24"><path fill="#2932E1" d="M5.42 10.456c1.072 0 1.94.868 1.94 1.94 0 1.072-.868 1.94-1.94 1.94-1.072 0-1.94-.868-1.94-1.94 0-1.072.868-1.94 1.94-1.94zm6.288-.108c1.26 0 2.282 1.02 2.282 2.28 0 1.26-1.022 2.28-2.282 2.28-1.26 0-2.28-1.02-2.28-2.28 0-1.26 1.02-2.28 2.28-2.28zm5.82-1.96c.964 0 1.744.78 1.744 1.744 0 .964-.78 1.744-1.744 1.744-.964 0-1.744-.78-1.744-1.744 0-.964.78-1.744 1.744-1.744z"/></svg>'
+            },
+            bing: {
+                name: 'Bing',
+                url: q => 'https://www.bing.com/search?q=' + encodeURIComponent(q),
+                placeholder: 'Search with Bing / 使用 Bing 搜索',
+                icon: '<svg viewBox="0 0 24 24"><path fill="#00897B" d="M4.52 4.24L10.6 2v6.36L4.52 4.24zm6.08 4.12v7.28l6.08-3.64V8.36L10.6 8.36zm6.08 3.64L10.6 15.64V22l6.08-3.64V12z"/></svg>'
+            }
+        };
+
+        let currentEngine = 'google';
+        const searchInput = document.getElementById('searchInput');
+        const engineToggle = document.getElementById('engineToggle');
+        const engineDropdown = document.getElementById('engineDropdown');
+        const engineIcon = document.getElementById('engineIcon');
+        const searchBtn = document.getElementById('searchBtn');
+
+        function setEngine(engine) {
+            currentEngine = engine;
+            const eng = engines[engine];
+            searchInput.placeholder = eng.placeholder;
+            engineIcon.outerHTML = eng.icon.replace('<svg', '<svg id="engineIcon"');
+            document.querySelectorAll('.engine-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.engine === engine);
+            });
+            engineDropdown.classList.remove('show');
+            searchInput.focus();
+        }
+
+        function doSearch() {
+            const q = searchInput.value.trim();
+            if (!q) return;
+            // If it looks like a URL, navigate directly
+            if (/^(https?:\/\/|www\.)/i.test(q) || /^[\w.-]+\.\w{2,}(\/\S*)?$/i.test(q)) {
+                const url = q.startsWith('http') ? q : 'https://' + q;
+                window.location.href = url;
+            } else {
+                window.location.href = engines[currentEngine].url(q);
+            }
+        }
+
+        engineToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            engineDropdown.classList.toggle('show');
+        });
+
+        document.querySelectorAll('.engine-option').forEach(opt => {
+            opt.addEventListener('click', () => setEngine(opt.dataset.engine));
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') doSearch();
+        });
+
+        searchBtn.addEventListener('click', doSearch);
+
+        document.addEventListener('click', () => {
+            engineDropdown.classList.remove('show');
+        });
+
+        engineDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    </script>
 </body>
 </html>
