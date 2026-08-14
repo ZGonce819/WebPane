@@ -1,0 +1,51 @@
+<idea-plugin>
+  <id>top.apolleonce.webpane</id>
+  <name>WebPane</name>
+  <version>1.0.0</version>
+  <vendor email="xiaodonglicn@outlook.com" url="https://github.com/ApolleoOnce">Apolleo</vendor>
+
+  <!-- Dependencies -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.jcef</depends>
+
+  <!-- Actions -->
+  <actions>
+    <action id="top.apolleonce.webpane.OpenWebPaneAction"
+            icon="/META-INF/webModuleGroup.svg"
+            class="top.apolleonce.OpenWebPaneAction"
+            text="Open WebPane"
+            description="Open a WebPane in a ToolWindow">
+      <add-to-group group-id="ToolsMenu" anchor="last" />
+    </action>
+  </actions>
+
+  <!-- Extensions -->
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="WebPane" anchor="right" icon="/META-INF/webModuleGroup.svg"
+                factoryClass="top.apolleonce.WebPaneToolWindow" />
+    <toolWindow id="WebPane DevTools" anchor="bottom"
+                factoryClass="top.apolleonce.DevToolsToolWindowFactory"
+                icon="AllIcons.Toolwindows.ToolWindowDebugger" secondary="true" />
+    <codeInsight.lineMarkerProvider language="HTML"
+                                    implementationClass="top.apolleonce.HtmlWebPaneLineMarkerProvider" />
+  </extensions>
+
+  <!-- Description -->
+  <description><![CDATA[
+    A lightweight browser plugin for JetBrains IDEs. Adds an integrated browser panel on the right side of the editor, powered by JCEF (Chromium Embedded Framework).<br><br>
+    Features:<br>
+    - Browse the web without leaving your IDE<br>
+    - Test front-end code (HTML/CSS/JS) in real time<br>
+    - Built-in DevTools (F12) for debugging<br>
+    - Zoom, forward/backward navigation, and memory usage monitoring<br>
+    - Quick-open HTML files via gutter icon<br><br>
+    为JetBrains IDE提供轻量级内置浏览器面板，基于JCEF (Chromium Embedded Framework)，支持网页浏览、前端代码实时预览、F12开发者工具、缩放导航及内存监控等功能。
+  ]]></description>
+
+  <!-- Change Notes -->
+  <change-notes><![CDATA[
+    <ul>
+      <li>v1.0.0 - Initial release: WebPane tool window, DevTools, HTML line marker, zoom &amp; navigation</li>
+    </ul>
+  ]]></change-notes>
+</idea-plugin>

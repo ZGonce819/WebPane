@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle, #dcdcdc, #8c8c8c);
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .prompt-box {
+            position: relative;
+            max-width: 80%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .memory-tip {
+            margin-top: 30px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 20px;
+        }
+
+        .memory-tip a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .memory-tip a:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+<body>
+<div class="prompt-box">
+    Enter the URL in the input box above and then click [Enter] to start your experience
+    <div class="memory-tip">
+        Tip: The browser uses IDE memory. Please configure IDE memory for optimal performance.<br>
+    </div>
+</div>
+</body>
+</html>
