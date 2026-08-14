@@ -37,10 +37,11 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
                 java.lang.reflect.Method method = CefBrowser.class.getMethod("getDevTools", new Class[0]);
                 devToolsCef = (CefBrowser) method.invoke(cefBrowser, new Object[0]);
             } catch (NoSuchMethodException ex) {
-                Messages.showInfoMessage("Current IDE version doesn't support DevTools functionality", "Info");
+                Messages.showInfoMessage("DevTools is not supported in this IDE version", "Info");
                 return;
             } catch (Exception ex) {
-                // fall through
+                Messages.showInfoMessage("Failed to initialize DevTools: " + ex.getMessage(), "Info");
+                return;
             }
 
             if (devToolsCef == null) {
@@ -60,6 +61,8 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
                     com.intellij.ui.content.ContentManager contentManager = toolWindow.getContentManager();
                     contentManager.addContent(devToolsContent);
                     toolWindow.show(() -> contentManager.setSelectedContent(devToolsContent));
+                } else {
+                    Messages.showInfoMessage("Failed to get DevTools UI component", "Info");
                 }
             } catch (Exception ex) {
                 Messages.showInfoMessage("Failed to open DevTools: " + ex.getMessage(), "Info");
@@ -70,16 +73,25 @@ public class DevToolsToolWindowFactory implements com.intellij.openapi.wm.ToolWi
     public static void closeDevTools(Project project) {
         if (devToolsContent != null) {
             ApplicationManager.getApplication().invokeLater(() -> {
-                ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
-                if (toolWindow != null) {
-                    com.intellij.ui.content.ContentManager contentManager = toolWindow.getContentManager();
-                    contentManager.removeContent(devToolsContent, true);
+                try {
+                    ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("WebPane DevTools");
+                    if (toolWindow != null) {
+                        com.intellij.ui.content.ContentManager contentManager = toolWindow.getContentManager();
+                        contentManager.removeContent(devToolsContent, true);
+                    }
+                } catch (Exception ex) {
+                    // Ignore errors during cleanup
+                } finally {
+                    if (devToolsBrowser != null) {
+                        try {
+                            devToolsBrowser.dispose();
+                        } catch (Exception ex) {
+                            // Ignore disposal errors
+                        }
+                        devToolsBrowser = null;
+                    }
+                    devToolsContent = null;
                 }
-                if (devToolsBrowser != null) {
-                    devToolsBrowser.dispose();
-                    devToolsBrowser = null;
-                }
-                devToolsContent = null;
             });
         }
     }
