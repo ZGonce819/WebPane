@@ -89,19 +89,38 @@ public class WebPaneToolWindow implements ToolWindowFactory {
     private JPanel createTopToolbar() {
         JPanel toolbar = new JPanel(new BorderLayout());
 
+        JButton homeButton = createHomeButton();
+
         urlField = new JTextField(URL_MSG);
         urlField.setForeground(Color.GRAY);
         addPlaceholder();
 
         JButton moreButton = createMoreDropdownButton();
 
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        leftPanel.add(homeButton);
+
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         rightPanel.add(moreButton);
 
+        toolbar.add(leftPanel, BorderLayout.WEST);
         toolbar.add(urlField, BorderLayout.CENTER);
         toolbar.add(rightPanel, BorderLayout.EAST);
 
         return toolbar;
+    }
+
+    private JButton createHomeButton() {
+        JButton button = new JButton(AllIcons.Nodes.HomeFolder);
+        button.setToolTipText("Home");
+        button.setFocusable(false);
+        button.addActionListener(e -> {
+            Project project = getFirstProject();
+            if (project != null && checkMemory(project)) {
+                loadWelcomeMessage();
+            }
+        });
+        return button;
     }
 
     private JButton createMoreDropdownButton() {
