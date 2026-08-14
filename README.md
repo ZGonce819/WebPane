@@ -24,7 +24,7 @@ A lightweight browser plugin for JetBrains IDEs. Browse the web, test front-end 
 
 ### Manual Installation
 
-1. Download `webpane-1.0.0.zip` from [Releases](https://github.com/ZGonce819/WebPane/releases)
+1. Download `webpane-1.0.1.zip` from [Releases](https://github.com/ZGonce819/WebPane/releases)
 2. Go to **Settings → Plugins → ️ → Install Plugin from Disk...**
 3. Select the downloaded ZIP file
 4. Restart the IDE
@@ -76,7 +76,7 @@ Then build:
 mvn clean package
 ```
 
-The plugin ZIP will be generated at `target/webpane-1.0.0.zip`.
+The plugin ZIP will be generated at `target/webpane-1.0.1.zip`.
 
 ## License
 
