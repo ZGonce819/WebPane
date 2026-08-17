@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>top.apolleonce.webpane</id>
   <name>WebPane</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <vendor email="ZGocne819@foxmail.com" url="https://github.com/ZGonce819">Apolleo</vendor>
 
   <idea-version since-build="241" />
@@ -47,6 +47,7 @@
   <!-- Change Notes -->
   <change-notes><![CDATA[
     <ul>
+      <li>v1.0.2 - Fixed menu icon rendering issue in Tools menu</li>
       <li>v1.0.1 - Improved tool window icon visibility and brightness</li>
       <li>v1.0.0 - Initial release: WebPane tool window, DevTools, HTML line marker, zoom &amp; navigation</li>
     </ul>
